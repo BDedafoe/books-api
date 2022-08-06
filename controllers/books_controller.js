@@ -1,17 +1,18 @@
 const express = require('express')
-const books = express.Router()
-const Book = require('../models/books')
+const router = express.Router()
+const Book = require('../models/books.js')
 
-//http://localhost:3000
-books.get('/', (req, res) => {
+//http://localhost:3000 - Index 
+router.get('/', (req, res) => {
     Book.find()
         .then(foundBooks => {
             res.json(foundBooks)
         })
+        .catch(err => res.json(err))
 })
 
-//http://localhost:3000/books
-books.get('/seed', (req, res) => {
+//http://localhost:3000/books - main page
+router.get('/seed', (req, res) => {
     Book.insertMany([{
         "title": "The Shinobi Initiative",
         "description": "The reality-bending adventures of a clandestine service agency in the year 2166",
@@ -48,19 +49,29 @@ books.get('/seed', (req, res) => {
         }))
 })
 
-//http://localhost:3000/books/title
-books.get('/:title', (req, res) => {
-    Book.findOne({ id: req.params.name })
+//http://localhost:3000/books/
+router.get('/:id', (req, res) => {
+    Book.findById(req.params.id)
         .then(foundBook => {
             res.json(foundBook)
         })
 })
 
-books.post('/books', (req, res) => {
-  Book.create()
+router.post('/', (req, res) => {
+  Book.create(req.params.body)
     .then(createdBook => {
       res.json(createdBook)
     })
+    .catch(err => res.json(err))
 })
 
-module.exports = books
+router.delete('/books/:id', (req, res) => {
+  Book.findOneAndDelete(req.params.id)
+  .then(deletedBook => { 
+    res.json("Delete Successful")
+  })
+  .catch(err => res.json(err))
+})
+
+
+module.exports = router
